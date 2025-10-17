@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+
+import React from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useClerk, useUser, UserButton } from "@clerk/clerk-react";
@@ -28,15 +30,6 @@ const Navbar = () => {
     const location = useLocation();
 
     useEffect(() => {
-
-        if(location.pathname !== '/'){
-            setIsScrolled(true);
-            return;
-        }else{
-            setIsScrolled(false);
-        }
-        setIsScrolled(prev => location.pathname !== '/' ? true : prev)
-
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
