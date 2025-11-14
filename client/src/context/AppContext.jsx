@@ -1,8 +1,11 @@
+/* eslint-disable react-refresh/only-export-components */
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 import { createContext, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { toast } from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -36,6 +39,12 @@ export const AppProvider = ({ children }) => {
         }
     }
 
+    useEffect(()=>{
+        if(user){
+            fetchUser();
+        }
+    },[user])
+
     const value = {
         currency,
         navigate,
@@ -45,7 +54,9 @@ export const AppProvider = ({ children }) => {
         setIsOwner,
         axios,
         showHotelReg,
-        setShowHotelReg
+        setShowHotelReg,
+        searchCities,
+        setSearchCities
     }
 
     return (
