@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from 'react'
 import StarRating from '../components/StarRating'
 import { assets, facilityIcons, roomsDummyData } from '../assets/assets'
@@ -62,7 +63,7 @@ const AllRooms = () => {
             if(checked){
                 updatedFilters[type].push(value)
             }else{
-                updatedFilters[type] = updatedFilters[type].filter(item => item !=== value);
+                updatedFilters[type] = updatedFilters[type].filter(item => item !== value);
             }
             return updatedFilters;
         })
