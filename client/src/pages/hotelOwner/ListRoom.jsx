@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Title from '../../components/Title'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
+import { facilityIcons } from '../../assets/assets'
 
 const ListRoom = () => {
 
@@ -77,7 +78,16 @@ const ListRoom = () => {
                     </td>
                     <td className='py-3 px-4 text-gray-700 border-t border-gray-300
                     max-sm:hidden'>
-                      {item.amenities.join(', ')}
+                      <div className='flex flex-wrap items-center gap-2'>
+                        {item.amenities.map((amenity, amenityIndex) => (
+                          <div key={amenityIndex} className='flex items-center gap-1'>
+                            {facilityIcons[amenity] && (
+                              <img src={facilityIcons[amenity]} alt={amenity} className='w-4 h-4'/>
+                            )}
+                            <span className='text-xs'>{amenity}</span>
+                          </div>
+                        ))}
+                      </div>
                     </td>
                     <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>
                       {currency} {item.pricePerNight}

@@ -30,11 +30,23 @@ const Navbar = () => {
     const {user, navigate, isOwner, setShowHotelReg} = useAppContext();
 
     useEffect(() => {
+        const isHomePage = location.pathname === '/';
+        
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        
+        // For non-home pages, always show background
+        if (!isHomePage) {
+            setIsScrolled(true);
+        } else {
+            // For home page, check scroll position
+            handleScroll(); // Check initial scroll position
+            window.addEventListener("scroll", handleScroll);
+            return () => {
+                window.removeEventListener("scroll", handleScroll);
+            };
+        }
     }, [location.pathname]);
 
     return (

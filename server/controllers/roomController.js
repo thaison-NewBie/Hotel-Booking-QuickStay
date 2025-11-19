@@ -1,6 +1,7 @@
 import Hotel from "../models/Hotel.js";
 import { v2 as cloudinary } from "cloudinary";
 import Room from "../models/Room.js";
+import mongoose from "mongoose";
 
 // API to create a new room for a hotel
 export const createRoom = async (req, res) => {
@@ -42,6 +43,32 @@ export const getRooms = async (req, res) => {
             }
         }).sort({craeatedAt: -1})
         res.json({ success: true, rooms })
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// API to get a single room by ID
+export const getRoomById = async (req, res) => {
+    try {
+        const {id} = req.params;
+        
+        // Validate if id is a valid MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.json({ success: false, message: "Invalid room ID format" });
+        }
+        
+        const room = await Room.findById(id).populate({
+            path: "hotel",
+            populate: {
+                path: "owner",
+                select: "image username"
+            }
+        });
+        if(!room) {
+            return res.json({ success: false, message: "Room not found" });
+        }
+        res.json({ success: true, room })
     } catch (error) {
         res.json({ success: false, message: error.message });
     }

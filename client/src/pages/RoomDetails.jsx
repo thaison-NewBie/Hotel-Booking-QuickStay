@@ -1,21 +1,62 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { assets, facilityIcons, roomCommonData, roomsDummyData } from '../assets/assets'
+import { assets, facilityIcons, roomCommonData } from '../assets/assets'
 import StarRating from '../components/StarRating'
+import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
 
 const RoomDetails = () => {
     const {id} = useParams()
     const [room, setRoom] = useState(null)
     const [mainImage, setMainImage] = useState(null)
-
+    const [loading, setLoading] = useState(true)
+    const {axios} = useAppContext()
 
     useEffect(() => {
-        const room = roomsDummyData.find(room => room._id === id)
-        room && setRoom(room)
-        room && setMainImage(room.images[0])
-    },[])
-  return room && (
+        const fetchRoom = async () => {
+            try {
+                setLoading(true)
+                // Basic validation: check if id looks like a MongoDB ObjectId (24 hex characters)
+                if (!id || id.length !== 24 || !/^[0-9a-fA-F]{24}$/.test(id)) {
+                    setLoading(false)
+                    return; // Invalid ID format, don't make API call
+                }
+                
+                const {data} = await axios.get(`/api/room/${id}`)
+                if(data.success){
+                    setRoom(data.room)
+                    setMainImage(data.room.images[0])
+                } else {
+                    toast.error(data.message || 'Room not found')
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || error.message || 'Failed to load room details')
+            } finally {
+                setLoading(false)
+            }
+        }
+        if(id){
+            fetchRoom()
+        }
+    },[id, axios])
+  if(loading) {
+    return (
+      <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 flex items-center justify-center min-h-[50vh]'>
+        <p className='text-gray-500'>Loading room details...</p>
+      </div>
+    )
+  }
+
+  if(!room) {
+    return (
+      <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 flex items-center justify-center min-h-[50vh]'>
+        <p className='text-gray-500'>Room not found</p>
+      </div>
+    )
+  }
+
+  return (
     <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32'>
         {/* Room Details */}
         <div className='flex flex-col md:flex-row items-start md:items-center gap-2'>
@@ -59,7 +100,9 @@ const RoomDetails = () => {
                 <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
                     {room.amenities.map((item, index)=>(
                         <div key={index} className='flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100'>
-                            <img src={facilityIcons[item]} alt={item} className='w-5 h-5'/>
+                            {facilityIcons[item] && (
+                                <img src={facilityIcons[item]} alt={item} className='w-5 h-5'/>
+                            )}
                             <p className='text-xs'>{item}</p>
                         </div>
                     ))}
