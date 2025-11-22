@@ -20,8 +20,15 @@ const RoomDetails = () => {
     // Check if the Room is Available
     const checkAvailability = async ()=>{
         try {
+            // Validate dates are set
+            if(!checkInDate || !checkOutDate){
+                toast.error("Please select both Check-In and Check-Out dates")
+                return;
+            }
             // Check is Check-In Date is greater than Check-Out Date
-            if(checkInDate >= checkOutDate){
+            const checkIn = new Date(checkInDate);
+            const checkOut = new Date(checkOutDate);
+            if(checkIn >= checkOut){
                 toast.error("Check-In Date should be less than Check-Out Date")
                 return;
             }
@@ -38,7 +45,7 @@ const RoomDetails = () => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message)
         }
     }
     
@@ -46,22 +53,34 @@ const RoomDetails = () => {
     const onSubmitHandler = async (e)=>{
         try {
             e.preventDefault();
+            
+            // Validate dates are set
+            if(!checkInDate || !checkOutDate){
+                toast.error("Please select both Check-In and Check-Out dates")
+                return;
+            }
+            
             if(!isAvailable){
                 return checkAvailability();
             }else{
+                const token = await getToken();
+                if(!token){
+                    toast.error("Please login to book a room")
+                    return;
+                }
                 const { data } = await axios.post('/api/bookings/book', {room: id, 
                 checkInDate, checkOutDate, guests, paymentMethod: "Pay At Hotel"},
-                {headers: {Authorization: `Bearer ${await getToken()}` }})
+                {headers: {Authorization: `Bearer ${token}` }})
                 if(data.success){
                     toast.success(data.message)
                     navigate('/my=bookings')
                     scrollTo(0, 0)
                 }else{
-                    toast.error(data.error)
+                    toast.error(data.message || data.error || "Failed to create booking")
                 }
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message || "An error occurred")
         }
     }
 

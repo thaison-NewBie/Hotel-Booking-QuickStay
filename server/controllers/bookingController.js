@@ -1,3 +1,4 @@
+import transporter from "../configs/nodemailer.js";
 import Booking from "../models/Booking.js"
 import Hotel from "../models/Hotel.js"
 import Room from "../models/Room.js";
@@ -15,6 +16,7 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
         return isAvailable;
     } catch (error) {
         console.error(error.message);
+        return false; // Return false on error to be safe
     }
 }
 
@@ -23,6 +25,19 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
 export const checkAvailabilityAPI = async (req, res) => {
     try {
         const { room, checkInDate, checkOutDate } = req.body;
+        
+        // Validate required fields
+        if(!room || !checkInDate || !checkOutDate){
+            return res.json({ success: false, message: "Missing required fields" })
+        }
+        
+        // Validate dates
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        if(checkIn >= checkOut){
+            return res.json({ success: false, message: "Check-In Date should be less than Check-Out Date" })
+        }
+        
         const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
         res.json({ success: true, isAvailable })
     } catch (error) {
@@ -38,6 +53,18 @@ export const createBooking = async (req, res) => {
         const { room, checkInDate, checkOutDate, guests } = req.body;
         const user = req.user._id;
 
+        // Validate required fields
+        if(!room || !checkInDate || !checkOutDate || !guests){
+            return res.json({ success: false, message: "Missing required fields" })
+        }
+
+        // Validate dates
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        if(checkIn >= checkOut){
+            return res.json({ success: false, message: "Check-In Date should be less than Check-Out Date" })
+        }
+
         // Before Booking Check Availability 
         const isAvailable = await checkAvailability({ 
             checkInDate,
@@ -50,11 +77,12 @@ export const createBooking = async (req, res) => {
         }
         // Get totalPrice from Room
         const roomData = await Room.findById(room).populate("hotel");
+        if(!roomData){
+            return res.json({ success: false, message: "Room not found" })
+        }
         let totalPrice = roomData.pricePerNight;
         
         // Calculate totalPrice based on nights
-        const checkIn = new Date(checkInDate)
-        const checkOut = new Date(checkOutDate)
         const timeDiff = checkOut.getTime() - checkIn.getTime();
         const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
@@ -68,6 +96,28 @@ export const createBooking = async (req, res) => {
             checkOutDate,
             totalPrice,
         })
+
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: req.user.email,
+            subject: 'Hotel Booking Details',
+            html: `
+                <h2>Your Booking Details</h2>
+                <p>Dear ${req.user.username},</p>
+                <p>Thank you for your booking! Here are your booking details:</p>
+                <ul>
+                    <li><strong>Booking ID:</strong> ${booking._id}</li>
+                    <li><strong>Hotel Name:</strong> ${roomData.hotel.name}</li>
+                    <li><strong>Location:</strong> ${roomData.hotel.address}</li>
+                    <li><strong>Date:</strong> ${booking.checkInDate.toDateString()}</li>
+                    <li><strong>Booking Amount:</strong> ${process.env.CURRENCY || '$'} ${booking.totalPrice} /night</li>
+                </ul>
+                <p>We look forward to welcoming you!</p>
+                <p>If you need to make any changes, feel free to contact us.</p>
+            `
+        }
+        await transporter.sendMail(mailOptions)
+
         res.json({ success: true, message: "Booking created successfully" })
 
     } catch (error) {
