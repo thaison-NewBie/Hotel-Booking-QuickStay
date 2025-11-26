@@ -1,0 +1,35 @@
+[33mcommit bbb4a1f698d11ae610024eda7d9b9d32aa73d60c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Tue Nov 25 13:35:49 2025 +0700
+
+    project completed
+
+[33mcommit 040cc8ef0fd8ec9935749bced571f2e2e12f1fee[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Mon Nov 10 22:17:33 2025 +0700
+
+    Create API for Hotel 1
+
+[33mcommit a7424ab0553ced31e147ceb3f1733429d9e29f36[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Sat Nov 8 14:51:01 2025 +0700
+
+    commit
+
+[33mcommit 977e72186ffbc91c377e439ba4455117750d2544[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Thu Nov 6 21:35:14 2025 +0700
+
+    Create server and connect with mongoose
+
+[33mcommit 80c9dae37566443c869cec548fcc1d65ee5aa059[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Wed Nov 5 23:58:47 2025 +0700
+
+    Remove server
+
+[33mcommit f3064b77e333d70095abe582108df9599372e414[m
+Author: thaison-NewBie <lethaison199@gmail.com>
+Date:   Sat Nov 1 22:04:51 2025 +0700
+
+    1
